@@ -30,16 +30,12 @@ while True:
         # 找最大白色區域
         c = max(contours, key=cv2.contourArea)
         if cv2.contourArea(c) > 1000:
-            # 多邊形近似
-            epsilon = 0.02 * cv2.arcLength(c, True)
-            approx = cv2.approxPolyDP(c, epsilon, True)
-            # 如果是四邊形
-            if len(approx) == 4:
-                for idx, point in enumerate(approx):
-                    x, y = point[0]
-                    cv2.circle(frame, (x, y), 8, (0, 0, 255), -1)
-                    cv2.putText(frame, f"Corner {idx+1}", (x+10, y), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,255), 2)
-                cv2.drawContours(frame, [approx], -1, (0,255,0), 2)
+            # 外接矩形
+            x, y, w, h = cv2.boundingRect(c)
+            # 畫出矩形
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # 顯示寬度
+            cv2.putText(frame, f"Width: {w} px", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
 
     cv2.imshow("USB Camera", frame)
     cv2.imshow("Mask", mask)
