@@ -25,21 +25,27 @@ while True:
     height, width = frame.shape[:2]
     center_x, center_y = width // 2, height // 2
 
-    # 畫紅色中心點
-    cv2.circle(frame, (center_x, center_y), 5, (0, 0, 255), -1)
+    # 畫黑色中心點
+    cv2.circle(frame, (center_x, center_y), 5, (0, 0, 0), -1)
     # 畫青色水平線
     cv2.line(frame, (0, center_y), (width, center_y), (255, 255, 0), 2)
 
-    # 取得中心線的灰階強度
+    # 取得中心線附近的灰階平均值 (取 5 條線平均)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    intensity = gray[center_y, :]
+    band = gray[center_y-2:center_y+3, :]  # 上下各取 2 條線
+    intensity = np.mean(band, axis=0)
+
+    # 除錯：印出前 10 個強度值
+    print(intensity[:10])
 
     # 更新圖表
     line_plot.set_data(np.arange(width), intensity)
     ax.set_xlim(0, width)
+    ax.relim()             # 重新計算數據範圍
+    ax.autoscale_view()    # 自動縮放
     fig.canvas.draw()
     fig.canvas.flush_events()
-    plt.pause(0.001)  # 確保即時刷新
+    plt.pause(0.01)        # 適度延遲，確保刷新
 
     cv2.imshow("USB Camera", frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):
